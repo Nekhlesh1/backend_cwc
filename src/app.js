@@ -9,4 +9,8 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN
 }))
 
-export default { app }
+app.use(express.urlencoded({extended: true}))
+
+app.use(express.static("public"))
+app.use(cookieParser())
+export  { app }
