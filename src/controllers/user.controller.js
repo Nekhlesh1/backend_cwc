@@ -3,19 +3,24 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
+        // console.log(accessToken, refreshToken);
+
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
 
-        return { accessToken, refreshToken }
+        return {accessToken, refreshToken }
     }
     catch (err) {
-        throw new ApiError(500, "Something went wrong while generating tokens ")
+        // throw new ApiError(500, "Something went wrong while generating tokens ")
+        console.log(err)
     }
 }
 
@@ -87,8 +92,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     //   get userid and password from user
     const { email, username, password } = req.body
-    if (!username || !email)
-        throw new ApiError(400, "Username or password required")
+    if (!(username || email))
+        throw new ApiError(400, "Username or email required")
 
     // check if user exists
     const user = await User.findOne(
